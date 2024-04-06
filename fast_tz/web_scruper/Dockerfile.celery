@@ -1,0 +1,31 @@
+FROM python:3.9
+
+RUN dpkg --add-architecture i386  && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends apt-utils openssh-client gcc default-libmysqlclient-dev  \
+    nfs-common libc6:i386 libncurses5:i386 libstdc++6:i386 && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get clean && \
+    apt-get autoremove
+
+# Create the directory
+RUN mkdir -p /var/log/scruppy
+
+# Change permissions of the directory to 777
+RUN chmod 777 /var/log/scruppy
+
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONHTTPSVERIFY 0
+ENV DEBUG=True
+ENV DJANGO_SETTINGS_MODULE=settings.main
+ENV REDIS_HOST=localhost
+
+WORKDIR /core
+
+COPY requirements.txt .
+RUN pip3 install --upgrade pip
+RUN pip3 install -r requirements.txt --no-cache-dir
+COPY . .
+

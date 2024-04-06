@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  redis:
+    image: 'redis:7.0.11'
+    container_name: redis
+    domainname: redis
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_TLS_ENABLED=yes
+      - REDIS_TLS_PORT=6379
+      - REDIS_TLS_CERT_FILE=/opt/bitnami/redis/certs/redis.crt
+      - REDIS_TLS_KEY_FILE=/opt/bitnami/redis/certs/redis.key
+      - REDIS_TLS_CA_FILE=/opt/bitnami/redis/certs/redisCA.crt
+      - REDIS_TLS_AUTH_CLIENTS=no
+    ports:
+      - '6379:6379'
+    volumes:
+      - '${PWD}/tools/tls/redis.crt:/opt/bitnami/redis/certs/redis.crt'
+      - '${PWD}/tools/tls/redis.key:/opt/bitnami/redis/certs/redis.key'
+      - '${PWD}/tools/tls/ca.crt:/opt/bitnami/redis/certs/redisCA.crt'
+
+#
+#  web:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.web
+#    command: python manage.py runserver 0.0.0.0:8000
+#    volumes:
+#      - .:/web_scruper
+#    ports:
+#      - '8000:8000'
+#    depends_on:
+#      - redis
+#
+#  celery:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.celery
+#    command: sh -c "sleep 10 && celery -A app worker --loglevel=info --concurrency=10 -n scruppy_worker"
+#    volumes:
+#      - .:/web_scruper
+#    depends_on:
+#      - redis
+#      - web
+
+
+volumes:
+  portainer-data:
+  redis-data:
